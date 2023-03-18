@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/myMainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:foreground="@drawable/window_dim_shape"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <CheckedTextView
+            android:id="@+id/generateTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14.5dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="14.5dp"
+            android:text="Generate our own QR Code"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/qrCodeMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:hint="@string/enter_your_message" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/generateQrBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/generate"
+            android:textAllCaps="false" />
+
+        <ImageView
+            android:id="@+id/imageQrCode"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:scaleType="fitCenter" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveQrCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="10dp"
+            android:text="@string/save"
+            android:textAllCaps="false"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/shareQrCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="10dp"
+            android:text="@string/share"
+            android:textAllCaps="false"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/clearQrCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="10dp"
+            android:text="@string/clear"
+            android:textAllCaps="false"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</ScrollView>
