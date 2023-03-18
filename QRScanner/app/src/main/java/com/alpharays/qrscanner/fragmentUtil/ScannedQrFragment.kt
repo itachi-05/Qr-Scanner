@@ -43,7 +43,10 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // inflating the fragment layout
         binding = FragmentScannedQrBinding.inflate(layoutInflater, container, false)
+
+        // calling interface to listen changes when popup window is dismissed
         myGenerator.setOnWindowCloseListener(this)
         return binding!!.root
     }
@@ -56,6 +59,7 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
         val result = arguments?.getString("scannedTxt")
         val ss = SpannableString(result)
 
+        // checking if the result contains URL
         if (result!!.contains("https://")) {
             binding!!.scannedTxt.isClickable = true
 
@@ -83,6 +87,7 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
         }
 
 
+        // generating Qr Code and setting the image as a Bitmap
         bitmap = myGenerator.qrBitmapGenerator(result.toString())
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
@@ -91,7 +96,10 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
         }
         if (bitmap != null) binding!!.imageQrCode2.setImageBitmap(bitmap)
 
+
+        // saving the image to device storage in Downloads folder
         binding!!.saveQrCode2.setOnClickListener {
+            // checking bitmap null safety and Write permissions
             if (bitmap != null && ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -100,6 +108,7 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
                 val removingHttps = result.replace("https://", "")
                 val suggestionName =
                     removingHttps.substring(0, min(removingHttps.length, 15)) + "..."
+                // calling qrFileName to open a popup window to save the bitmap image with file name in png format
                 myGenerator.qrFileName(
                     requireContext(),
                     requireActivity(),
@@ -110,6 +119,7 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
                 binding!!.myMainLayout2.foreground.alpha = 180
                 myGenerator.qrSaveBitmap(this, bitmap, binding!!.root, lifecycleScope)
             } else {
+                // permission was not granted or was later explicitly denied
                 ActivityCompat.requestPermissions(
                     requireActivity(),
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -126,21 +136,25 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
             }
         }
 
+        // sharing the qr code bitmap via other application using implicit intent
         binding!!.shareQrCode2.setOnClickListener {
             myGenerator.shareQrCode(requireContext(), bitmap, result)
         }
 
+        // on click listener to scan new Qr code
         binding!!.scanNewQrCode.setOnClickListener {
             findNavController().navigate(R.id.action_scannedQrFragment_to_codeScannerFragment)
         }
 
     }
 
+    // to avoid memory leaks
     override fun onDestroy() {
         super.onDestroy()
         binding = null
     }
 
+    // interface method for popup window dismissal
     override fun onWinClose() {
         Log.i("checkingWinClose2", "Working2")
         binding!!.myMainLayout2.foreground.alpha = 0

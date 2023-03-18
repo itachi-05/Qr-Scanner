@@ -30,7 +30,10 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // inflating the fragment layout
         binding = FragmentQrGeneratorBinding.inflate(layoutInflater, container, false)
+
+        // calling interface to listen changes when popup window is dismissed
         myGenerator.setOnWindowCloseListener(this)
         return binding!!.root
     }
@@ -40,6 +43,7 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
 
         binding!!.myMainLayout.foreground.alpha = 0
 
+        // generating Qr Code and setting the image as a Bitmap
         binding!!.generateQrBtn.setOnClickListener {
             if (binding!!.qrCodeMessage.text.toString().isEmpty()) {
                 Snackbar.make(binding!!.root, "Empty message", Snackbar.LENGTH_SHORT).show()
@@ -53,12 +57,15 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
             binding!!.clearQrCode.visibility = View.VISIBLE
         }
 
+        // saving the image to device storage in Downloads folder
         binding!!.saveQrCode.setOnClickListener {
+            // checking bitmap null safety and Write permissions
             if (bitmap != null && ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
+                // calling qrFileName to open a popup window to save the bitmap image with file name in png format
                 myGenerator.qrFileName(
                     requireContext(),
                     requireActivity(),
@@ -69,6 +76,7 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
                 binding!!.myMainLayout.foreground.alpha = 180
                 myGenerator.qrSaveBitmap(this, bitmap, binding!!.root, lifecycleScope)
             } else {
+                // permission was not granted or was later explicitly denied
                 ActivityCompat.requestPermissions(
                     requireActivity(),
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -85,6 +93,7 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
             }
         }
 
+        // sharing the qr code bitmap via other application using implicit intent
         binding!!.shareQrCode.setOnClickListener {
             try {
                 myGenerator.shareQrCode(requireContext(), bitmap, result)
@@ -93,6 +102,8 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
             }
         }
 
+
+        // clearing the generated qr code to generate a new qr code
         binding!!.clearQrCode.setOnClickListener {
             try {
                 binding!!.qrCodeMessage.setText("")
@@ -106,11 +117,13 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
         }
     }
 
+    // to avoid memory leaks
     override fun onDestroy() {
         super.onDestroy()
         binding = null
     }
 
+    // interface method for popup window dismissal
     override fun onWinClose() {
         Log.i("checkingWinClose", "Working")
         binding!!.myMainLayout.foreground.alpha = 0

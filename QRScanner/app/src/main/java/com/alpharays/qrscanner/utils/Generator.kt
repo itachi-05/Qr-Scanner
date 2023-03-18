@@ -37,14 +37,17 @@ class Generator {
     private var popupWindow: PopupWindow? = null
     private var onWindowCloseListener: OnWindowCloseListener? = null
 
+    // save path for storing qr bitmap image in Downloads folder
     private val savePath =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path + "/QRCode/"
 
+    // Bitmap Generator util function
     fun qrBitmapGenerator(text: String): Bitmap {
         val encoder = BarcodeEncoder()
         return encoder.encodeBitmap(text, BarcodeFormat.QR_CODE, 800, 800)
     }
 
+    // Popup window to save file image with name util function
     fun qrFileName(
         context: Context,
         activity: Activity,
@@ -52,6 +55,7 @@ class Generator {
         ok: Boolean,
         suggestionTxt: String
     ) {
+        // inflating the popup window's view with respective layout
         val popupView =
             LayoutInflater.from(context).inflate(R.layout.file_name_layout, null)
         popupWindow = PopupWindow(
@@ -66,6 +70,7 @@ class Generator {
             fileName.setText(suggestionTxt)
         }
 
+        // setting height and width of window according to the device dimensions
         val displayMetrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
         val height = displayMetrics.heightPixels
@@ -73,11 +78,13 @@ class Generator {
         popupWindow!!.width = width - 100
         popupWindow!!.height = height - 1020
 
+        // animation to slide popup window
         val padding = 30
         popupWindow!!.animationStyle = R.style.PopupAnimation
         popupView.setPadding(padding, padding, padding, padding)
         popupWindow!!.showAtLocation(popupView, Gravity.CENTER, 0, 0)
 
+        // saving the file to device storage
         val saveBtn = popupView.findViewById<MaterialButton>(R.id.saveBtn)
         saveBtn.setOnClickListener {
             var fileName =
@@ -90,17 +97,21 @@ class Generator {
                 _finalFileName.postValue(fileName)
             }
         }
+
+        // cancelling the saving of image
         val cancelBtn = popupView.findViewById<MaterialButton>(R.id.cancelBtn)
         cancelBtn.setOnClickListener {
             popupWindow!!.dismiss()
             Snackbar.make(view, "Cancelled", Snackbar.LENGTH_SHORT).show()
         }
 
+        // listener for popupWindow dismissal
         popupWindow!!.setOnDismissListener {
             onWindowCloseListener?.onWinClose()
         }
     }
 
+    // saving the name of file
     fun qrSaveBitmap(
         viewLifecycleOwner: LifecycleOwner,
         bitmap: Bitmap?,
@@ -144,6 +155,7 @@ class Generator {
         onWindowCloseListener = listener
     }
 
+    // sharing the generated / scanned Qr Code
     fun shareQrCode(context: Context, bitmap: Bitmap?,result: String) {
         try {
             val uri = getImageUri(bitmap!!, context)
@@ -162,6 +174,7 @@ class Generator {
         }
     }
 
+    // converting bitmap image into Uri to store to device storage
     private fun getImageUri(bitmapImage: Bitmap, context: Context): Uri? {
         val bytes = ByteArrayOutputStream()
         bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
@@ -174,6 +187,7 @@ class Generator {
         return Uri.parse(path)
     }
 
+    // interface for listening changes
     interface OnWindowCloseListener {
         fun onWinClose()
     }

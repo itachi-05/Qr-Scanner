@@ -14,10 +14,12 @@ class QrScannerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // inflating the fragment layout
         binding = FragmentQrScannerBinding.inflate(layoutInflater, container, false)
         return binding!!.root
     }
 
+    // to avoid memory leaks
     override fun onDestroy() {
         super.onDestroy()
         binding = null

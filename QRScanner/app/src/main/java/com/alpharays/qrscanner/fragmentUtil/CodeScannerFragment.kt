@@ -22,12 +22,14 @@ class CodeScannerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // inflating the fragment layout
         binding = FragmentCodeScannerBinding.inflate(layoutInflater, container, false)
         return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // initiating the codeScannerView class to initiate the QR CODE Scanner using device camera
         val codeScannerView: CodeScannerView = binding!!.codeScannerView
         codeScanner = activity?.let { CodeScanner(it.applicationContext, codeScannerView) }!!
         codeScanner.startPreview()
@@ -38,6 +40,7 @@ class CodeScannerFragment : Fragment() {
         codeScanner.isAutoFocusEnabled = true
         codeScanner.isFlashEnabled = false
 
+        // qr scanned successfully and navigating to qr details page
         codeScanner.decodeCallback = DecodeCallback {
             this.activity?.runOnUiThread {
                 result = it.text
@@ -48,6 +51,7 @@ class CodeScannerFragment : Fragment() {
             }
         }
 
+        // handling device camera errors
         codeScanner.errorCallback = ErrorCallback {
             this.activity?.runOnUiThread {
                 Log.i("Camera_Error", "Camera_Error")
@@ -55,21 +59,25 @@ class CodeScannerFragment : Fragment() {
             }
         }
 
+        // if scanner shuts down, then starting the scanner using OnClickListener
         codeScannerView.setOnClickListener {
             codeScanner.startPreview()
         }
     }
 
+    // starting the scanner on resume state
     override fun onResume() {
         super.onResume()
         codeScanner.startPreview()
     }
 
+    // pausing the scanner on pause state
     override fun onPause() {
         codeScanner.releaseResources()
         super.onPause()
     }
 
+    // to avoid memory leaks
     override fun onDestroy() {
         super.onDestroy()
         binding = null

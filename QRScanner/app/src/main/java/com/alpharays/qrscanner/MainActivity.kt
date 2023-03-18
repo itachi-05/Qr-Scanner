@@ -19,8 +19,10 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // requesting permissions
         requestPermissions()
 
+        // setting up the viewpager and tabLayout
         binding.viewpager.adapter = QrAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewpager) { tab, index ->
             tab.text = when (index) {
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         }.attach()
     }
 
-    // new permission handling:
+    // new permission handling
     private fun requestPermissions() {
         if (TrackingUtility.hasCameraPermissions(this)) {
             return

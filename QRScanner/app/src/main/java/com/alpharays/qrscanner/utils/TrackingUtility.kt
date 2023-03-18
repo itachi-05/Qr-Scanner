@@ -5,13 +5,14 @@ import android.content.Context
 import pub.devrel.easypermissions.EasyPermissions
 
 object TrackingUtility {
-
+    // accessing camera permissions
     fun hasCameraPermissions(context: Context) =
         EasyPermissions.hasPermissions(
             context,
             Manifest.permission.CAMERA
         )
 
+    // accessing storage permissions
     fun hasStoragePermissions(context: Context) =
         EasyPermissions.hasPermissions(
             context,

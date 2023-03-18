@@ -7,8 +7,10 @@ import com.alpharays.qrscanner.fragment.QrGeneratorFragment
 import com.alpharays.qrscanner.fragment.QrScannerFragment
 
 class QrAdapter(fragmentActivity: MainActivity) : FragmentStateAdapter(fragmentActivity) {
+    // no. of fragment count
     override fun getItemCount() = 2
 
+    // creating fragments
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> QrGeneratorFragment()
