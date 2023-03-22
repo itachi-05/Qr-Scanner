@@ -19,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textColor="@color/black"
             android:layout_margin="10dp"
             android:text="@string/about_qr"
             android:textAlignment="center"
@@ -39,6 +40,7 @@
             android:layout_gravity="end"
             android:layout_margin="10dp"
             android:text="@string/save"
+            android:backgroundTint="@color/buttons"
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
@@ -46,12 +48,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:backgroundTint="@color/buttons"
             android:layout_margin="10dp"
             android:text="@string/share"
             android:textAllCaps="false" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/historyDelete"
+            android:backgroundTint="@color/buttons"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"

@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="qrCodeColor">#2962FF</color>
     <color name="qrCodeBgColor">#000000</color>
+    <color name="buttons">#000000</color>
 </resources>

@@ -2,4 +2,5 @@
 <resources>
     <color name="qrCodeColor">#30E4FF</color>
     <color name="qrCodeBgColor">#FFFFFF</color>
+    <color name="buttons">#2962FF</color>
 </resources>

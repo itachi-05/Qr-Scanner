@@ -1,12 +1,25 @@
 package com.alpharays.qrscanner
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Typeface
+import android.net.Uri
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.text.style.StyleSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckedTextView
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.RecyclerView
 import com.alpharays.qrscanner.data.entities.QrHistory
@@ -47,7 +60,7 @@ class HistoryAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val currentItem = finalList[position]
-        holder.historyText.text = currentItem.about
+        settingText(holder,currentItem)
         val bitmap =
             BitmapFactory.decodeByteArray(currentItem.imageData, 0, currentItem.imageData.size)
         holder.historyImage.setImageBitmap(bitmap)
@@ -66,6 +79,37 @@ class HistoryAdapter(
             onDeleteClickListener?.onDeleteClicked(currentItem)
         }
 
+    }
+
+    private fun settingText(holder: MyViewHolder, currentItem: QrHistory) {
+        val ss = SpannableString(currentItem.about)
+        Log.i("checkingItem",currentItem.about)
+        if (currentItem.about.contains("https://")) {
+            holder.historyText.isClickable = true
+
+            val clickableSpan: ClickableSpan = object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(ss.toString()))
+                    context.startActivity(intent)
+                }
+
+                override fun updateDrawState(ds: TextPaint) {
+                    super.updateDrawState(ds)
+                    ds.color = ContextCompat.getColor(context, R.color.qrCodeColor)
+                    ds.isUnderlineText = false
+                }
+            }
+            ss.setSpan(clickableSpan, 0, ss.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            ss.setSpan(StyleSpan(Typeface.BOLD), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            holder.historyText.text = ss
+            holder.historyText.movementMethod = LinkMovementMethod.getInstance()
+            holder.historyText.highlightColor = Color.TRANSPARENT
+        }
+        else{
+            ss.setSpan(StyleSpan(Typeface.BOLD), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            holder.historyText.text = ss
+            holder.historyText.highlightColor = Color.TRANSPARENT
+        }
     }
 
     fun updateList(newList: ArrayList<QrHistory>) {
