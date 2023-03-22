@@ -1,13 +1,25 @@
 package com.alpharays.qrscanner
 
 import android.Manifest
+import android.content.Intent
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.widget.PopupMenu
+import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.alpharays.qrscanner.data.entities.QrHistory
 import com.alpharays.qrscanner.databinding.ActivityMainBinding
 import com.alpharays.qrscanner.utils.Constants
 import com.alpharays.qrscanner.utils.TrackingUtility
+import com.alpharays.qrscanner.viewmodels.QrHistoryViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 
@@ -21,6 +33,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
         // requesting permissions
         requestPermissions()
+
+        moreOptions()
 
         // setting up the viewpager and tabLayout
         binding.viewpager.adapter = QrAdapter(this)
@@ -37,6 +51,29 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 }
             }
         }.attach()
+    }
+
+    private fun moreOptions() {
+        val popupMenu = PopupMenu(this, binding.navBarBtn)
+        popupMenu.inflate(R.menu.nav_menu)
+
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.history -> {
+                    historyPage()
+                    true
+                }
+                else -> false
+            }
+        }
+        binding.navBarBtn.setOnClickListener {
+            popupMenu.show()
+        }
+    }
+
+    private fun historyPage() {
+        // retrieve database
+        startActivity(Intent(this, HistoryActivity::class.java))
     }
 
     // new permission handling

@@ -1,4 +1,4 @@
-package com.alpharays.qrscanner.fragmentUtil
+package com.alpharays.qrscanner.fragmentScanner
 
 import android.os.Bundle
 import android.util.Log

@@ -1,4 +1,4 @@
-package com.alpharays.qrscanner.fragmentUtil
+package com.alpharays.qrscanner.fragmentScanner
 
 import android.Manifest
 import android.content.Intent
@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.provider.CalendarContract.Colors
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
@@ -24,20 +23,25 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.alpharays.qrscanner.R
+import com.alpharays.qrscanner.data.entities.QrHistory
 import com.alpharays.qrscanner.databinding.FragmentScannedQrBinding
 import com.alpharays.qrscanner.utils.Generator
+import com.alpharays.qrscanner.viewmodels.QrHistoryViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import kotlin.math.min
 
 class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
     private var binding: FragmentScannedQrBinding? = null
     private var bitmap: Bitmap? = null
     private var myGenerator = Generator()
+    private lateinit var qrHistoryViewModel: QrHistoryViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,6 +96,7 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 bitmap = myGenerator.qrBitmapGenerator(result.toString())
+                savingBitmapToDb(bitmap!!, result)
             }
         }
         if (bitmap != null) binding!!.imageQrCode2.setImageBitmap(bitmap)
@@ -146,6 +151,22 @@ class ScannedQrFragment : Fragment(), Generator.OnWindowCloseListener {
             findNavController().navigate(R.id.action_scannedQrFragment_to_codeScannerFragment)
         }
 
+    }
+
+    private fun savingBitmapToDb(bitmap: Bitmap, result: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                val imageData = stream.toByteArray()
+                qrHistoryViewModel =
+                    ViewModelProvider(this@ScannedQrFragment)[QrHistoryViewModel::class.java]
+                val qrHistory = QrHistory(about = result, imageData = imageData)
+                qrHistoryViewModel.insertQr(qrHistory)
+            } catch (e: Exception) {
+                Log.i("checkingException", e.message.toString())
+            }
+        }
     }
 
     // to avoid memory leaks

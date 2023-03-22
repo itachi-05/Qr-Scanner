@@ -31,6 +31,7 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.min
 
 class Generator {
     private var _finalFileName: MutableLiveData<String> = MutableLiveData("")
@@ -121,34 +122,42 @@ class Generator {
         _finalFileName.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty() && it != "") {
                 lifeCycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        try {
-                            // Create a File object with the path and filename
-                            val fileName = "$it.png"
-                            val file = File(savePath, fileName)
-                            val directory = File(savePath)
-                            if (!directory.exists()) directory.mkdirs()
-                            val stream = FileOutputStream(file)
-                            bitmap?.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                            stream.close()
-                            withContext(Dispatchers.Main) {
-                                Snackbar.make(
-                                    view,
-                                    "Successfully saved in /Downloads",
-                                    Snackbar.LENGTH_LONG
-                                ).show()
-                                _finalFileName.postValue("")
-                            }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                Snackbar.make(view, "Error", Snackbar.LENGTH_SHORT).show()
-                            }
-                            e.printStackTrace()
-                        }
+                    try {
+                        // Create a File object with the path and filename
+                        savingFile(it, bitmap, view)
+                    } catch (e: Exception) {
+                        Snackbar.make(view, "Error", Snackbar.LENGTH_SHORT).show()
+                        e.printStackTrace()
                     }
                 }
             }
         })
+    }
+
+    suspend fun savingFile(it: String, bitmap: Bitmap?, view: View) {
+        val removingHttps = it.replace("https://", "")
+        val removingHttps2 = removingHttps.replace("/", "_")
+        val suggestionName =
+            removingHttps2.substring(0, min(removingHttps2.length, 15)) + "..."
+        val fileName = "$suggestionName.png"
+        val file = File(savePath, fileName)
+        val directory = File(savePath)
+        if (!directory.exists()) directory.mkdirs()
+        val stream = withContext(Dispatchers.IO) {
+            FileOutputStream(file)
+        }
+        bitmap?.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        withContext(Dispatchers.IO) {
+            stream.close()
+        }
+        withContext(Dispatchers.Main) {
+            Snackbar.make(
+                view,
+                "Successfully saved in /Downloads",
+                Snackbar.LENGTH_LONG
+            ).show()
+            _finalFileName.postValue("")
+        }
     }
 
     fun setOnWindowCloseListener(listener: OnWindowCloseListener) {
@@ -156,7 +165,7 @@ class Generator {
     }
 
     // sharing the generated / scanned Qr Code
-    fun shareQrCode(context: Context, bitmap: Bitmap?,result: String) {
+    fun shareQrCode(context: Context, bitmap: Bitmap?, result: String) {
         try {
             val uri = getImageUri(bitmap!!, context)
             val shareIntent = Intent(Intent.ACTION_SEND)

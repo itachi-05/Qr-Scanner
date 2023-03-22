@@ -4,20 +4,25 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.alpharays.qrscanner.data.entities.QrHistory
 import com.alpharays.qrscanner.databinding.FragmentQrGeneratorBinding
 import com.alpharays.qrscanner.utils.Generator
+import com.alpharays.qrscanner.viewmodels.QrHistoryViewModel
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 
 class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
@@ -25,6 +30,7 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
     private var bitmap: Bitmap? = null
     private var myGenerator = Generator()
     private var result = ""
+    private lateinit var qrHistoryViewModel: QrHistoryViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +57,7 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
             }
             result = binding!!.qrCodeMessage.text.toString()
             bitmap = myGenerator.qrBitmapGenerator(binding!!.qrCodeMessage.text.toString())
+            savingBitmapToDb(bitmap!!, result)
             binding!!.imageQrCode.setImageBitmap(bitmap)
             binding!!.saveQrCode.visibility = View.VISIBLE
             binding!!.shareQrCode.visibility = View.VISIBLE
@@ -113,6 +120,22 @@ class QrGeneratorFragment : Fragment(), Generator.OnWindowCloseListener {
                 binding!!.clearQrCode.visibility = View.GONE
             } catch (e: Exception) {
                 Log.i("clearQrCodeException", e.message.toString())
+            }
+        }
+    }
+
+    private fun savingBitmapToDb(bitmap: Bitmap, result: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                val imageData = stream.toByteArray()
+                qrHistoryViewModel =
+                    ViewModelProvider(this@QrGeneratorFragment)[QrHistoryViewModel::class.java]
+                val qrHistory = QrHistory(about = result, imageData = imageData)
+                qrHistoryViewModel.insertQr(qrHistory)
+            } catch (e: Exception) {
+                Log.i("checkingException", e.message.toString())
             }
         }
     }
